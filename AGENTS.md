@@ -12,6 +12,11 @@ This file gives repo-specific guidance for agents working in this project.
 
 ## Backend
 
+- Read [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md) before
+  changing backend module boundaries, persistence layout, transaction ownership, or API error
+  organization.
+- Follow [`docs/architecture/backend-modules-migration.md`](docs/architecture/backend-modules-migration.md)
+  for the incremental backend module refactor sequence and per-PR review checklist.
 - Read [`docs/architecture/api-dto-ownership.md`](docs/architecture/api-dto-ownership.md) before
   changing API request or response DTOs, OpenAPI schemas, or capability-side `utoipa` derives.
 - Use REST-style routes under `/api`.
@@ -27,7 +32,9 @@ This file gives repo-specific guidance for agents working in this project.
 }
 ```
 
-- Use `api::AppError` and `crates/api/src/mappings.rs` for stable error codes and messages.
+- Use `api::AppError` and the API error boundary for stable error codes and messages. The catch-all
+  lives in `crates/api/src/mappings.rs` today; the target layout is `crates/api/src/error/` as defined
+  in [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md).
 - Keep business logic in the owning capability crate (`crates/iam`, `crates/audit`, `crates/metadata`, `crates/file-storage`, etc.) rather than pushing it into route handlers.
 - When adding SQL schema changes, create a new migration in `migrations/`; do not edit an already-applied migration unless the user explicitly confirms the database can be reset.
 - Keep `sqlx::migrate!("../../migrations")` working from `crates/db`.
@@ -77,7 +84,9 @@ This file gives repo-specific guidance for agents working in this project.
 - Repeated fixed HTTP contracts may use crate-private `ErrorSpec` constants. Consume them with ordinary `ok_or` and `?`; do not add per-error constructor helpers or extension traits.
 - Keep stable error specs in the owning layer:
   - domain errors: the owning capability crate's local `error.rs` or `errors.rs`
-  - API boundary errors: `crates/api/src/mappings.rs`, with route-local errors only for multi-capability workflows such as login
+  - API boundary errors: the API error boundary (currently `crates/api/src/mappings.rs`; target
+    `crates/api/src/error/` in [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md)),
+    with route-local errors only for multi-capability workflows such as login
 - Keep stable, context-independent conversions from private implementation errors into a domain error in the owning module's `error.rs`; service code should propagate them with `?`.
 - Add `impl From<...> for AppError` only when the source error has one stable API meaning in every context.
 - When the same error type has context-specific semantics, map it explicitly at the call site with `.map_err(...)`.
@@ -172,6 +181,9 @@ When present, the local tracker uses the five-role vocabulary in `.notes/agents/
 ### Domain docs
 
 - Tracked, current architecture lives in `docs/architecture/`.
+- Backend module organization is [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md).
+- Backend module migration execution is
+  [`docs/architecture/backend-modules-migration.md`](docs/architecture/backend-modules-migration.md).
 - IAM's implementation document is [`docs/architecture/iam.md`](docs/architecture/iam.md).
 - Local `.notes/` files hold temporary planning context and task history and may describe superseded
   targets; use them for provenance, not as durable architecture or evidence that behavior is
