@@ -18,7 +18,7 @@ use super::{
 };
 
 #[derive(Debug, Clone)]
-pub struct ReplaceUserRoles {
+pub(crate) struct ReplaceUserRoles {
     pub actor_user_id: i64,
     pub user_id: i64,
     pub role_ids: Vec<i64>,
@@ -26,7 +26,7 @@ pub struct ReplaceUserRoles {
 }
 
 #[derive(Debug, Clone)]
-pub struct ReplaceRoleAccess {
+pub(crate) struct ReplaceRoleAccess {
     pub actor_user_id: i64,
     pub role_id: i64,
     pub permissions: BTreeSet<String>,
@@ -34,7 +34,7 @@ pub struct ReplaceRoleAccess {
 }
 
 #[derive(Clone)]
-pub struct Authorization {
+pub(crate) struct Authorization {
     store: Arc<PolicyStore>,
     engine: Arc<EnforcementEngine>,
     audits: AuditService,

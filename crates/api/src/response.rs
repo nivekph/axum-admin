@@ -30,7 +30,7 @@ impl<T> ApiResponse<T> {
     }
 }
 
-pub type ApiErrorResponse = ApiResponse<EmptyData>;
+pub(crate) type ApiErrorResponse = ApiResponse<EmptyData>;
 
 #[cfg(test)]
 mod tests {
