@@ -726,15 +726,14 @@ For example:
 dictionaries/
 ├── mod.rs
 ├── dto.rs
-├── catalog.rs
-└── tree.rs
+└── handler.rs
 ```
 
 However:
 
 > Capability structure should be stabilized before mirroring the same split in API routes.
 
-During the dictionaries capability refactor, keep the existing API route structure unchanged.
+Do not mirror a capability `tree.rs` into API routes automatically. During the dictionaries capability refactor, keep the existing API route structure unchanged.
 
 Do not split capability and transport modules in the same PR unless there is a concrete dependency requiring both.
 
@@ -1084,20 +1083,23 @@ repository calls
 other capability calls
 ```
 
-However, `service.rs` must not become the permanent catch-all file for every future method.
+Ordinary CRUD-style orchestration stays in `service.rs` unless it forms an independently nameable sub-capability with its own invariants.
 
-When use cases split into separate modules, keep the facade and construction in `service.rs`:
+When a distinct responsibility does emerge, keep the facade and construction in `service.rs` and move only that responsibility out:
 
 ```text
 service.rs
     public capability facade / construction
+    ordinary CRUD / cohesive workflows
 
 <business>.rs
-    use-case implementation
+    use-case implementation with independent invariants
 
 repository.rs
     relational persistence
 ```
+
+`service.rs` must not become the permanent catch-all file for every future method. Split only when a workflow has distinct invariants, transaction needs, or dependencies that justify a dedicated module.
 
 ---
 
@@ -1179,10 +1181,7 @@ File size is evidence, not the architectural reason.
 
 ## Dictionaries
 
-Dictionaries currently contain two distinct responsibilities:
-
-1. dictionary catalog management;
-2. hierarchical dictionary detail/tree management.
+Dictionaries contain ordinary dictionary CRUD plus a hierarchical detail/tree sub-capability.
 
 Target:
 
@@ -1194,21 +1193,18 @@ metadata/src/dictionaries/
 ├── request.rs
 ├── repository.rs
 ├── service.rs
-├── catalog.rs
 └── tree.rs
 ```
 
-`service.rs` owns the public facade and construction:
+The public facade remains:
 
 ```rust
 DictionaryService
 ```
 
-`catalog.rs` and `tree.rs` implement use cases on that facade.
-
 The refactor must preserve existing public method names and signatures unless a separate API-change decision is made.
 
-The first migration should split implementation modules, not capability identity.
+Do not introduce a separate `catalog.rs` merely to host ordinary dictionary CRUD. Ordinary CRUD belongs in `service.rs`; only tree workflows justify a dedicated module.
 
 ---
 
@@ -1220,27 +1216,11 @@ Owns:
 DictionaryService struct
 constructor
 shared dependencies
+list / create / update / find / delete
+import / export
 ```
 
-Do not place catalog or tree workflow logic here once those use cases have been split out.
-
----
-
-## `catalog.rs`
-
-Owns use cases such as:
-
-```text
-list dictionaries
-find dictionary
-create dictionary
-update dictionary
-delete dictionary
-import
-export
-```
-
-It may coordinate repository calls and catalog-specific business rules.
+It may call tree helpers when a catalog read needs a tree projection.
 
 ---
 
@@ -1267,7 +1247,7 @@ Tree transactions belong here.
 
 ## `repository.rs`
 
-Owns PostgreSQL operations shared by catalog and tree workflows.
+Owns PostgreSQL operations shared by dictionary CRUD and tree workflows.
 
 It must not absorb tree invariants merely because those invariants require SQL.
 

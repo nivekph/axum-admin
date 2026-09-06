@@ -1,4 +1,3 @@
-mod catalog;
 mod error;
 mod model;
 mod repository;
