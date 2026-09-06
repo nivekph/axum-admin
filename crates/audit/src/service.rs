@@ -56,7 +56,10 @@ impl AuditService {
         }
     }
 
-    pub async fn record_in(conn: &mut PgConnection, event: AuditEvent) -> Result<(), AuditError> {
+    pub(crate) async fn record_in(
+        conn: &mut PgConnection,
+        event: AuditEvent,
+    ) -> Result<(), AuditError> {
         let action = event.action.to_string();
         let result = event.result.to_string();
         let reason_code = event.reason_code.map(|code| code.to_string());

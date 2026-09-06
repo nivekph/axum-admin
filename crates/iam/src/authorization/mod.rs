@@ -5,7 +5,7 @@ mod store;
 
 pub use error::AuthorizationError;
 pub(crate) use error::{AccountPolicyError, RolePolicyError};
-pub use service::{Authorization, ReplaceRoleAccess, ReplaceUserRoles};
+pub(crate) use service::{Authorization, ReplaceRoleAccess, ReplaceUserRoles};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct EffectiveRoleGrant {
