@@ -1,6 +1,9 @@
 use sqlx::{PgPool, Postgres, Transaction};
 
-use super::{DictionaryInput, DictionaryListQuery, SysDictionary, model::SysDictionaryDetailRow};
+use super::{
+    DictionaryDetailInput, DictionaryInput, DictionaryListQuery, SysDictionary,
+    model::SysDictionaryDetailRow,
+};
 
 pub(super) async fn list(
     pool: &PgPool,
@@ -90,12 +93,7 @@ pub(super) async fn delete(pool: &PgPool, id: i64) -> Result<(), sqlx::Error> {
 pub(super) async fn insert_detail(
     pool: &PgPool,
     dictionary_id: i64,
-    label: String,
-    value: String,
-    extend: String,
-    status: Option<bool>,
-    sort: i32,
-    parent_id: Option<i64>,
+    payload: DictionaryDetailInput,
     level: i32,
     path: String,
 ) -> Result<(), sqlx::Error> {
@@ -106,13 +104,13 @@ pub(super) async fn insert_detail(
         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         "#,
     )
-    .bind(label)
-    .bind(value)
-    .bind(extend)
-    .bind(status)
-    .bind(sort)
+    .bind(payload.label)
+    .bind(payload.value)
+    .bind(payload.extend)
+    .bind(payload.status)
+    .bind(payload.sort)
     .bind(dictionary_id)
-    .bind(parent_id)
+    .bind(payload.parent_id)
     .bind(level)
     .bind(path)
     .execute(pool)
@@ -178,12 +176,7 @@ pub(super) async fn update_detail(
     tx: &mut Transaction<'_, Postgres>,
     dictionary_id: i64,
     detail_id: i64,
-    label: String,
-    value: String,
-    extend: String,
-    status: Option<bool>,
-    sort: i32,
-    parent_id: Option<i64>,
+    payload: DictionaryDetailInput,
     level: i32,
     path: String,
 ) -> Result<u64, sqlx::Error> {
@@ -195,13 +188,13 @@ pub(super) async fn update_detail(
         where id = $10 and sys_dictionary_id = $11
         "#,
     )
-    .bind(label)
-    .bind(value)
-    .bind(extend)
-    .bind(status)
-    .bind(sort)
+    .bind(payload.label)
+    .bind(payload.value)
+    .bind(payload.extend)
+    .bind(payload.status)
+    .bind(payload.sort)
     .bind(dictionary_id)
-    .bind(parent_id)
+    .bind(payload.parent_id)
     .bind(level)
     .bind(path)
     .bind(detail_id)

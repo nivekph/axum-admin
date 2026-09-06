@@ -23,19 +23,7 @@ impl DictionaryService {
                 })?,
             None => (0, String::new()),
         };
-        Ok(repository::insert_detail(
-            &self.pool,
-            dictionary_id,
-            payload.label,
-            payload.value,
-            payload.extend,
-            payload.status,
-            payload.sort,
-            payload.parent_id,
-            level,
-            path,
-        )
-        .await?)
+        Ok(repository::insert_detail(&self.pool, dictionary_id, payload, level, path).await?)
     }
 
     pub async fn update_detail(
@@ -71,20 +59,9 @@ impl DictionaryService {
             }
             None => Ok((0, String::new())),
         }?;
-        let rows_affected = repository::update_detail(
-            &mut tx,
-            dictionary_id,
-            detail_id,
-            payload.label,
-            payload.value,
-            payload.extend,
-            payload.status,
-            payload.sort,
-            payload.parent_id,
-            level,
-            path,
-        )
-        .await?;
+        let rows_affected =
+            repository::update_detail(&mut tx, dictionary_id, detail_id, payload, level, path)
+                .await?;
         if rows_affected == 0 {
             return Err(DictionaryError::DetailNotFound {
                 dictionary_id,

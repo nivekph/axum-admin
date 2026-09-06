@@ -1070,9 +1070,9 @@ Transaction semantics should remain visible in the use-case module.
 
 # 25. Service / Use-Case Ownership
 
-`service.rs` is appropriate when a feature still represents one cohesive capability.
+When a feature exposes a public capability facade, keep that facade in `service.rs`.
 
-A service may own:
+For a cohesive feature, `service.rs` may also own the use-case methods:
 
 ```text
 business validation
@@ -1085,6 +1085,19 @@ other capability calls
 ```
 
 However, `service.rs` must not become the permanent catch-all file for every future method.
+
+When use cases split into separate modules, keep the facade and construction in `service.rs`:
+
+```text
+service.rs
+    public capability facade / construction
+
+<business>.rs
+    use-case implementation
+
+repository.rs
+    relational persistence
+```
 
 ---
 
@@ -1105,12 +1118,13 @@ to:
 
 ```text
 feature/
+├── service.rs
 ├── repository.rs
 ├── capability_a.rs
 └── capability_b.rs
 ```
 
-The primary facade may remain unchanged.
+Keep the public facade type and constructor in `service.rs`.
 
 Multiple modules may implement the same facade type.
 
@@ -1133,6 +1147,8 @@ impl Accounts {
 in another.
 
 Do not create a new service type merely because the implementation moved to a different file.
+
+Do not move the facade struct into `mod.rs` merely because use cases left `service.rs`.
 
 ---
 
@@ -1177,19 +1193,36 @@ metadata/src/dictionaries/
 ├── model.rs
 ├── request.rs
 ├── repository.rs
+├── service.rs
 ├── catalog.rs
 └── tree.rs
 ```
 
-The public facade remains:
+`service.rs` owns the public facade and construction:
 
-```text
+```rust
 DictionaryService
 ```
+
+`catalog.rs` and `tree.rs` implement use cases on that facade.
 
 The refactor must preserve existing public method names and signatures unless a separate API-change decision is made.
 
 The first migration should split implementation modules, not capability identity.
+
+---
+
+## `service.rs`
+
+Owns:
+
+```text
+DictionaryService struct
+constructor
+shared dependencies
+```
+
+Do not place catalog or tree workflow logic here once those use cases have been split out.
 
 ---
 
@@ -1303,13 +1336,14 @@ accounts/
 ├── model.rs
 ├── request.rs
 ├── repository.rs
+├── service.rs
 ├── administration.rs
 ├── identity.rs
 ├── profile.rs
 └── access.rs
 ```
 
-The public facade remains:
+`service.rs` owns the public facade and construction:
 
 ```rust
 pub struct Accounts {
@@ -1317,7 +1351,7 @@ pub struct Accounts {
 }
 ```
 
-Do not replace it with multiple new public service types.
+Do not replace it with multiple new public service types, and do not move the facade into `mod.rs` merely because use cases were split out.
 
 ---
 
@@ -1732,6 +1766,10 @@ should remain the public entry points unless a separate architecture decision ch
 The rule is:
 
 > Split implementation modules, not capability identity.
+
+When a public facade exists, keep it in `service.rs`.
+
+Use-case modules may implement methods on that facade, but they do not replace it.
 
 Do not turn one facade into multiple public service types merely because implementation methods move to separate files.
 
