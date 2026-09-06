@@ -1,9 +1,10 @@
 mod error;
 mod model;
+mod repository;
 mod request;
 mod service;
+mod tree;
 
-// exports
 pub use error::DictionaryError;
 pub use model::*;
 pub use request::*;
