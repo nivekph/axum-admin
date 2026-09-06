@@ -481,14 +481,15 @@ async fn deleting_an_imported_local_url_keeps_the_object(pool: sqlx::PgPool) {
         })
         .await
         .expect("external URL should be imported");
-    let query: FileListQuery = serde_json::from_value(serde_json::json!({
-        "page": 1,
-        "pageSize": 10,
-        "keyword": null,
-        "category": null
-    }))
-    .expect("file list query should deserialize");
-    let (files, ..) = service.list(query).await.expect("imported URL should list");
+    let (files, ..) = service
+        .list(FileListQuery {
+            page: 1,
+            page_size: 10,
+            keyword: None,
+            category: None,
+        })
+        .await
+        .expect("imported URL should list");
 
     service
         .delete(files[0].id)
