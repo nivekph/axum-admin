@@ -26,12 +26,6 @@ A good module structure should make it obvious:
 
 This document is the canonical contract for backend module organization.
 
-PR sequencing and progress for migrating the current codebase toward these rules live in:
-
-```text
-docs/architecture/backend-modules-migration.md
-```
-
 It defines:
 
 * crate responsibility boundaries;
@@ -1857,13 +1851,7 @@ architecture contract
   → selective remaining IAM adoption
 ```
 
-PR sequencing, acceptance criteria, stop conditions, and progress for the current migration live in:
-
-```text
-docs/architecture/backend-modules-migration.md
-```
-
-That document is an execution plan. It does not redefine the responsibility rules in this contract.
+PR sequencing and progress for a concrete migration belong in local working notes, not in this contract.
 
 Parameters repository extraction is optional and is not part of the required sequence.
 

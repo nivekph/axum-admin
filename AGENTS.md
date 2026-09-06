@@ -15,8 +15,6 @@ This file gives repo-specific guidance for agents working in this project.
 - Read [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md) before
   changing backend module boundaries, persistence layout, transaction ownership, or API error
   organization.
-- Follow [`docs/architecture/backend-modules-migration.md`](docs/architecture/backend-modules-migration.md)
-  for the incremental backend module refactor sequence and per-PR review checklist.
 - Read [`docs/architecture/api-dto-ownership.md`](docs/architecture/api-dto-ownership.md) before
   changing API request or response DTOs, OpenAPI schemas, or capability-side `utoipa` derives.
 - Use REST-style routes under `/api`.
@@ -182,9 +180,9 @@ When present, the local tracker uses the five-role vocabulary in `.notes/agents/
 
 - Tracked, current architecture lives in `docs/architecture/`.
 - Backend module organization is [`docs/architecture/backend-modules.md`](docs/architecture/backend-modules.md).
-- Backend module migration execution is
-  [`docs/architecture/backend-modules-migration.md`](docs/architecture/backend-modules-migration.md).
 - IAM's implementation document is [`docs/architecture/iam.md`](docs/architecture/iam.md).
 - Local `.notes/` files hold temporary planning context and task history and may describe superseded
   targets; use them for provenance, not as durable architecture or evidence that behavior is
   implemented. See `.notes/agents/domain.md` when the local tracker is available.
+  The current backend module migration plan, when present, lives in
+  `.notes/backend-modules-migration.md`.
